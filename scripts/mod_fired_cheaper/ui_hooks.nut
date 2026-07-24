@@ -8,6 +8,8 @@
 
 			if (::MSU.isKindOf(_entity, "player"))
 			{
+				::FiredCheaper.ensureCalculatorLoaded();
+
 				_target.compensationCost <- ::FiredCheaper.getCompensationCost(_entity);
 				_target.compensationBreakdown <- ::FiredCheaper.getCompensationBreakdown(_entity);
 				_target.compensationBreakdownLines <- ::FiredCheaper.getCompensationBreakdownLines(_entity);

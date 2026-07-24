@@ -2,8 +2,10 @@
 {
 	_mod.hook("scripts/ui/screens/character/character_screen", function( q )
 	{
-		q.onDismissCharacter = function( _data )
+		q.onDismissCharacter = @(__original) function( _data )
 		{
+			::FiredCheaper.ensureCalculatorLoaded();
+
 			local bro = this.Tactical.getEntityByID(_data[0]);
 			local payCompensation = _data[1];
 			local allowCheckbox = ::FiredCheaper.getSettingValue("EnableCompensationPaymentCheckbox");
