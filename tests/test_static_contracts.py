@@ -22,11 +22,14 @@ class StaticContractsTest(unittest.TestCase):
         loader = read("scripts/!mods_preload/mod_fired_cheaper_loader.nut")
 
         self.assertIn("::Hooks.register(::FiredCheaper.ID", loader)
+        self.assertIn('::FiredCheaper.Version <- "0.1.0"', loader)
         self.assertIn('require("mod_msu >= 1.9.0")', loader)
         self.assertIn('queue(">mod_msu"', loader)
         self.assertIn("::MSU.Class.Mod", loader)
         self.assertIn("::FiredCheaper.registerSettings()", loader)
         self.assertIn('::Hooks.registerJS("ui/mods/fired_cheaper.js")', loader)
+        self.assertIn("::FiredCheaper.ensureCalculatorLoaded", loader)
+        self.assertIn("::FiredCheaper.installFallbackCalculator", loader)
 
     def test_settings_include_approved_adjustable_variables(self):
         settings = read("scripts/!mods_preload/mod_fired_cheaper_settings.nut")
@@ -80,6 +83,7 @@ class StaticContractsTest(unittest.TestCase):
         self.assertIn("_target.isPlayerCharacter", ui_hook)
         self.assertNotIn('"getHiringCost" in _entity', ui_hook)
         self.assertIn("::FiredCheaper.attachCompensationMethods(_entity)", ui_hook)
+        self.assertIn("if (!::FiredCheaper.ensureCalculatorLoaded())", ui_hook)
         self.assertIn("_target.compensationCost <- _entity.getCompensationCost()", ui_hook)
         self.assertIn("_target.compensationBreakdown <- ::FiredCheaper.getCompensationBreakdown(_entity)", ui_hook)
         self.assertIn("_target.compensationBreakdownLines <- ::FiredCheaper.getCompensationBreakdownLines(_entity)", ui_hook)
@@ -91,7 +95,8 @@ class StaticContractsTest(unittest.TestCase):
         self.assertIn('hook("scripts/ui/screens/character/character_screen"', dismiss_hook)
         self.assertIn("q.onDismissCharacter = @(__original) function", dismiss_hook)
         self.assertIn("::FiredCheaper.attachCompensationMethods(bro)", dismiss_hook)
-        self.assertIn("this.World.Assets.addMoney(-bro.getCompensationCost())", dismiss_hook)
+        self.assertIn("local hasCalculator = ::FiredCheaper.ensureCalculatorLoaded()", dismiss_hook)
+        self.assertIn("hasCalculator ? -bro.getCompensationCost() : -10 * this.Math.max(1, bro.getDaysWithCompany())", dismiss_hook)
         self.assertIn("EnableExtraDismissalBehaviors", dismiss_hook)
 
     def test_dismiss_dialog_renders_visible_breakdown_lines(self):

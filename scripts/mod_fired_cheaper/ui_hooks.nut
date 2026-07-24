@@ -8,6 +8,11 @@
 
 			if (_entity != null && _target.isPlayerCharacter)
 			{
+				if (!::FiredCheaper.ensureCalculatorLoaded())
+				{
+					return;
+				}
+
 				::FiredCheaper.attachCompensationMethods(_entity);
 
 				_target.compensationCost <- _entity.getCompensationCost();

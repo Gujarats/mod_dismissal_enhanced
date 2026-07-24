@@ -14,7 +14,12 @@
 				return;
 			}
 
-			::FiredCheaper.attachCompensationMethods(bro);
+			local hasCalculator = ::FiredCheaper.ensureCalculatorLoaded();
+
+			if (hasCalculator)
+			{
+				::FiredCheaper.attachCompensationMethods(bro);
+			}
 
 			if (!allowCheckbox)
 			{
@@ -31,7 +36,7 @@
 
 			if (payCompensation)
 			{
-				this.World.Assets.addMoney(-bro.getCompensationCost());
+				this.World.Assets.addMoney(hasCalculator ? -bro.getCompensationCost() : -10 * this.Math.max(1, bro.getDaysWithCompany()));
 
 				if (enableExtras && bro.getBackground().getID() == "background.slave")
 				{
