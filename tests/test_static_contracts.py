@@ -30,6 +30,9 @@ class StaticContractsTest(unittest.TestCase):
         self.assertIn('::Hooks.registerJS("ui/mods/fired_cheaper.js")', loader)
         self.assertIn("::FiredCheaper.ensureCalculatorLoaded", loader)
         self.assertIn("::FiredCheaper.installFallbackCalculator", loader)
+        self.assertIn("::FiredCheaper.getDefaultSettingValue", loader)
+        self.assertIn("::FiredCheaper.getSettingValue", loader)
+        self.assertIn('("getSettingValue" in ::FiredCheaper)', loader)
 
     def test_settings_include_approved_adjustable_variables(self):
         settings = read("scripts/!mods_preload/mod_fired_cheaper_settings.nut")
@@ -106,6 +109,8 @@ class StaticContractsTest(unittest.TestCase):
         self.assertIn("selectedBrother['showCompensationCheckbox']", ui)
         self.assertIn("Compensation breakdown", ui)
         self.assertIn("Final compensation: ", ui)
+        self.assertIn("Fired Cheaper data unavailable; showing vanilla compensation fallback", ui)
+        self.assertIn("10 * Math.max(1, selectedBrother['daysWithCompany'] || 0)", ui)
         self.assertIn("bindTooltip", ui)
 
 

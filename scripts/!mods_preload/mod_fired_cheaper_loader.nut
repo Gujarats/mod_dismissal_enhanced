@@ -9,6 +9,62 @@ if (!("FiredCheaper" in getroottable()))
 
 ::FiredCheaper.installFallbackCalculator <- function()
 {
+	if (!("getDefaultSettingValue" in ::FiredCheaper))
+	{
+		::FiredCheaper.getDefaultSettingValue <- function( _id )
+		{
+			switch (_id)
+			{
+				case "EnableCompensationPaymentCheckbox": return true;
+				case "MinimumCompensationFloor": return 0;
+				case "HireCostPercent": return 50;
+				case "EnableDaysWithRosterCompensation": return false;
+				case "DaysWithRosterFlatGoldPerDay": return 1;
+				case "EnableLevelBracketCompensation": return true;
+				case "LevelBracketLowFlatGold": return 50;
+				case "LevelBracketMidFlatGold": return 100;
+				case "LevelBracketHighFlatGold": return 200;
+				case "EnableEquipmentDeduction": return true;
+				case "UseSellPriceForEquipmentDeduction": return true;
+				case "EquipmentValuePercent": return 100;
+				case "CountHeadArmor": return true;
+				case "CountBodyArmor": return true;
+				case "CountMainhandWeapon": return true;
+				case "CountOffhand": return false;
+				case "CountAccessory": return false;
+				case "CountAmmo": return false;
+				case "PermanentInjuryFlatGold": return 250;
+				case "TemporaryInjuryFlatGold": return 150;
+				case "EnableExtraDismissalBehaviors": return true;
+			}
+
+			return null;
+		}
+	}
+
+	if (!("getSettingValue" in ::FiredCheaper))
+	{
+		::FiredCheaper.getSettingValue <- function( _id )
+		{
+			if (("Mod" in ::FiredCheaper) && ::FiredCheaper.Mod != null)
+			{
+				try
+				{
+					local setting = ::FiredCheaper.Mod.ModSettings.getSetting(_id);
+					if (setting != null)
+					{
+						return setting.getValue();
+					}
+				}
+				catch (e)
+				{
+				}
+			}
+
+			return ::FiredCheaper.getDefaultSettingValue(_id);
+		}
+	}
+
 	if (!("getCompensationCost" in ::FiredCheaper))
 	{
 		::FiredCheaper.getCompensationCost <- function( _bro )
@@ -72,6 +128,7 @@ if (!("FiredCheaper" in getroottable()))
 	}
 
 	return ("attachCompensationMethods" in ::FiredCheaper)
+		&& ("getSettingValue" in ::FiredCheaper)
 		&& ("getCompensationCost" in ::FiredCheaper)
 		&& ("getCompensationBreakdown" in ::FiredCheaper)
 		&& ("getCompensationBreakdownLines" in ::FiredCheaper);

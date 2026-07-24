@@ -19,8 +19,9 @@
 
         var result = $('<div class="dismiss-character-container"/>');
         var showCheckbox = selectedBrother['showCompensationCheckbox'] !== false;
+        var hasCompensationCost = selectedBrother['compensationCost'] !== undefined && selectedBrother['compensationCost'] !== null;
         var breakdownLines = selectedBrother['compensationBreakdownLines'] || [];
-        var compensationCost = selectedBrother['compensationCost'] || 0;
+        var compensationCost = hasCompensationCost ? selectedBrother['compensationCost'] : 10 * Math.max(1, selectedBrother['daysWithCompany'] || 0);
         var paymentVerb = selectedBrother['dailyMoneyCost'] == 0 ? 'Reparations' : 'Compensation';
         var titleLabel;
 
@@ -68,9 +69,13 @@
         result.append(breakdownContainer);
         breakdownContainer.append($('<div class="label text-font-medium font-color-description font-style-normal">Compensation breakdown</div>'));
 
-        if (breakdownLines.length === 0)
+        if (breakdownLines.length === 0 && hasCompensationCost)
         {
             breakdownLines = ['Final compensation: ' + compensationCost];
+        }
+        else if (breakdownLines.length === 0)
+        {
+            breakdownLines = ['Fired Cheaper data unavailable; showing vanilla compensation fallback: ' + compensationCost];
         }
 
         for (var i = 0; i < breakdownLines.length; ++i)
