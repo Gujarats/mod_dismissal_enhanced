@@ -1,4 +1,21 @@
-::FiredCheaper.getDefaultSettingValue <- function( _id )
+if (!("setCalculatorSlot" in ::FiredCheaper))
+{
+	::FiredCheaper.setCalculatorSlot <- function( _key, _value )
+	{
+		if (_key in ::FiredCheaper)
+		{
+			::FiredCheaper[_key] = _value;
+		}
+		else
+		{
+			::FiredCheaper[_key] <- _value;
+		}
+	}
+}
+
+::FiredCheaper.setCalculatorSlot("CalculatorSource", "full");
+
+::FiredCheaper.setCalculatorSlot("getDefaultSettingValue", function( _id )
 {
 	switch (_id)
 	{
@@ -26,9 +43,9 @@
 	}
 
 	return null;
-}
+});
 
-::FiredCheaper.getSettingValue <- function( _id )
+::FiredCheaper.setCalculatorSlot("getSettingValue", function( _id )
 {
 	if (("Mod" in ::FiredCheaper) && ::FiredCheaper.Mod != null)
 	{
@@ -46,9 +63,9 @@
 	}
 
 	return ::FiredCheaper.getDefaultSettingValue(_id);
-}
+});
 
-::FiredCheaper.countInjuriesByType <- function( _bro, _skillType )
+::FiredCheaper.setCalculatorSlot("countInjuriesByType", function( _bro, _skillType )
 {
 	local injuries = _bro.getSkills().query(::Const.SkillType.Injury | ::Const.SkillType.SemiInjury);
 	local count = 0;
@@ -62,9 +79,9 @@
 	}
 
 	return count;
-}
+});
 
-::FiredCheaper.getHireCostContribution <- function( _bro )
+::FiredCheaper.setCalculatorSlot("getHireCostContribution", function( _bro )
 {
 	local base = _bro.getHiringCost();
 	local percent = ::FiredCheaper.getSettingValue("HireCostPercent");
@@ -74,9 +91,9 @@
 		Percent = percent,
 		Value = ::Math.ceil(base * percent / 100.0)
 	};
-}
+});
 
-::FiredCheaper.getDaysContribution <- function( _bro )
+::FiredCheaper.setCalculatorSlot("getDaysContribution", function( _bro )
 {
 	local enabled = ::FiredCheaper.getSettingValue("EnableDaysWithRosterCompensation");
 	local rate = ::FiredCheaper.getSettingValue("DaysWithRosterFlatGoldPerDay");
@@ -88,9 +105,9 @@
 		Rate = rate,
 		Value = enabled ? days * rate : 0
 	};
-}
+});
 
-::FiredCheaper.getLevelContribution <- function( _bro )
+::FiredCheaper.setCalculatorSlot("getLevelContribution", function( _bro )
 {
 	local enabled = ::FiredCheaper.getSettingValue("EnableLevelBracketCompensation");
 	local level = _bro.getLevel();
@@ -122,9 +139,9 @@
 		Bracket = label,
 		Value = value
 	};
-}
+});
 
-::FiredCheaper.getEquipmentSlotValue <- function( _items, _slot )
+::FiredCheaper.setCalculatorSlot("getEquipmentSlotValue", function( _items, _slot )
 {
 	local item = _items.getItemAtSlot(_slot);
 	if (item == null || item == -1)
@@ -134,9 +151,9 @@
 
 	local useSellPrice = ::FiredCheaper.getSettingValue("UseSellPriceForEquipmentDeduction");
 	return useSellPrice ? item.getSellPrice() : item.getValue();
-}
+});
 
-::FiredCheaper.getEquipmentDeduction <- function( _bro )
+::FiredCheaper.setCalculatorSlot("getEquipmentDeduction", function( _bro )
 {
 	local enabled = ::FiredCheaper.getSettingValue("EnableEquipmentDeduction");
 	local percent = ::FiredCheaper.getSettingValue("EquipmentValuePercent");
@@ -161,9 +178,9 @@
 		Percent = percent,
 		Value = enabled ? ::Math.ceil(total * percent / 100.0) : 0
 	};
-}
+});
 
-::FiredCheaper.getPermanentInjuryContribution <- function( _bro )
+::FiredCheaper.setCalculatorSlot("getPermanentInjuryContribution", function( _bro )
 {
 	local count = ::FiredCheaper.countInjuriesByType(_bro, ::Const.SkillType.PermanentInjury);
 	local rate = ::FiredCheaper.getSettingValue("PermanentInjuryFlatGold");
@@ -173,9 +190,9 @@
 		Rate = rate,
 		Value = count * rate
 	};
-}
+});
 
-::FiredCheaper.getTemporaryInjuryContribution <- function( _bro )
+::FiredCheaper.setCalculatorSlot("getTemporaryInjuryContribution", function( _bro )
 {
 	local count = ::FiredCheaper.countInjuriesByType(_bro, ::Const.SkillType.TemporaryInjury);
 	local rate = ::FiredCheaper.getSettingValue("TemporaryInjuryFlatGold");
@@ -185,9 +202,9 @@
 		Rate = rate,
 		Value = count * rate
 	};
-}
+});
 
-::FiredCheaper.getCompensationBreakdown <- function( _bro )
+::FiredCheaper.setCalculatorSlot("getCompensationBreakdown", function( _bro )
 {
 	local hire = ::FiredCheaper.getHireCostContribution(_bro);
 	local days = ::FiredCheaper.getDaysContribution(_bro);
@@ -226,9 +243,9 @@
 		minimumCompensationFloor = floor,
 		finalCompensation = finalValue
 	};
-}
+});
 
-::FiredCheaper.getCompensationBreakdownLines <- function( _bro )
+::FiredCheaper.setCalculatorSlot("getCompensationBreakdownLines", function( _bro )
 {
 	local b = ::FiredCheaper.getCompensationBreakdown(_bro);
 	local lines = [];
@@ -272,14 +289,14 @@
 
 	lines.push("Final compensation: " + b.finalCompensation);
 	return lines;
-}
+});
 
-::FiredCheaper.getCompensationCost <- function( _bro )
+::FiredCheaper.setCalculatorSlot("getCompensationCost", function( _bro )
 {
 	return ::FiredCheaper.getCompensationBreakdown(_bro).finalCompensation;
-}
+});
 
-::FiredCheaper.attachCompensationMethods <- function( _bro )
+::FiredCheaper.setCalculatorSlot("attachCompensationMethods", function( _bro )
 {
 	if (_bro != null && !("getCompensationCost" in _bro))
 	{
@@ -288,4 +305,4 @@
 			return ::FiredCheaper.getCompensationCost(this);
 		}
 	}
-}
+});

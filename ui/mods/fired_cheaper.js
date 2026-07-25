@@ -21,6 +21,7 @@
         var showCheckbox = selectedBrother['showCompensationCheckbox'] !== false;
         var hasCompensationCost = selectedBrother['compensationCost'] !== undefined && selectedBrother['compensationCost'] !== null;
         var breakdownLines = selectedBrother['compensationBreakdownLines'] || [];
+        var firedCheaperDebug = selectedBrother['firedCheaperDebug'] || 'missing backend marker';
         var compensationCost = hasCompensationCost ? selectedBrother['compensationCost'] : 10 * Math.max(1, selectedBrother['daysWithCompany'] || 0);
         var paymentVerb = selectedBrother['dailyMoneyCost'] == 0 ? 'Reparations' : 'Compensation';
         var titleLabel;
@@ -75,8 +76,12 @@
         }
         else if (breakdownLines.length === 0)
         {
-            breakdownLines = ['Fired Cheaper data unavailable; showing vanilla compensation fallback: ' + compensationCost];
+            breakdownLines = [
+                'Fired Cheaper data unavailable; showing vanilla compensation fallback: ' + compensationCost
+            ];
         }
+
+        breakdownLines.push('Fired Cheaper debug: ' + firedCheaperDebug);
 
         for (var i = 0; i < breakdownLines.length; ++i)
         {

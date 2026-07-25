@@ -9,6 +9,8 @@ if (!("FiredCheaper" in getroottable()))
 
 ::FiredCheaper.installFallbackCalculator <- function()
 {
+	::FiredCheaper.CalculatorSource <- "fallback";
+
 	if (!("getDefaultSettingValue" in ::FiredCheaper))
 	{
 		::FiredCheaper.getDefaultSettingValue <- function( _id )
@@ -65,11 +67,36 @@ if (!("FiredCheaper" in getroottable()))
 		}
 	}
 
-	if (!("getCompensationCost" in ::FiredCheaper))
+	if (!("countInjuriesByType" in ::FiredCheaper))
 	{
-		::FiredCheaper.getCompensationCost <- function( _bro )
+		::FiredCheaper.countInjuriesByType <- function( _bro, _skillType )
 		{
-			return 10 * ::Math.max(1, _bro.getDaysWithCompany());
+			local injuries = _bro.getSkills().query(::Const.SkillType.Injury | ::Const.SkillType.SemiInjury);
+			local count = 0;
+
+			foreach (injury in injuries)
+			{
+				if (injury != null && injury.isType(_skillType))
+				{
+					count = count + 1;
+				}
+			}
+
+			return count;
+		}
+	}
+
+	if (!("getEquipmentSlotValue" in ::FiredCheaper))
+	{
+		::FiredCheaper.getEquipmentSlotValue <- function( _items, _slot )
+		{
+			local item = _items.getItemAtSlot(_slot);
+			if (item == null || item == -1)
+			{
+				return 0;
+			}
+
+			return ::FiredCheaper.getSettingValue("UseSellPriceForEquipmentDeduction") ? item.getSellPrice() : item.getValue();
 		}
 	}
 
@@ -77,10 +104,103 @@ if (!("FiredCheaper" in getroottable()))
 	{
 		::FiredCheaper.getCompensationBreakdown <- function( _bro )
 		{
-			local value = ::FiredCheaper.getCompensationCost(_bro);
+			local hireCostBase = _bro.getHiringCost();
+			local hireCostPercent = ::FiredCheaper.getSettingValue("HireCostPercent");
+			local hireCostContribution = ::Math.ceil(hireCostBase * hireCostPercent / 100.0);
+
+			local daysContributionEnabled = ::FiredCheaper.getSettingValue("EnableDaysWithRosterCompensation");
+			local daysWithCompany = _bro.getDaysWithCompany();
+			local daysContributionRate = ::FiredCheaper.getSettingValue("DaysWithRosterFlatGoldPerDay");
+			local daysContribution = daysContributionEnabled ? daysWithCompany * daysContributionRate : 0;
+
+			local levelContributionEnabled = ::FiredCheaper.getSettingValue("EnableLevelBracketCompensation");
+			local level = _bro.getLevel();
+			local levelBracket = "disabled";
+			local levelContribution = 0;
+
+			if (levelContributionEnabled)
+			{
+				if (level <= 5)
+				{
+					levelBracket = "1-5";
+					levelContribution = ::FiredCheaper.getSettingValue("LevelBracketLowFlatGold");
+				}
+				else if (level <= 10)
+				{
+					levelBracket = "6-10";
+					levelContribution = ::FiredCheaper.getSettingValue("LevelBracketMidFlatGold");
+				}
+				else
+				{
+					levelBracket = "11+";
+					levelContribution = ::FiredCheaper.getSettingValue("LevelBracketHighFlatGold");
+				}
+			}
+
+			local permanentInjuryCount = ::FiredCheaper.countInjuriesByType(_bro, ::Const.SkillType.PermanentInjury);
+			local permanentInjuryRate = ::FiredCheaper.getSettingValue("PermanentInjuryFlatGold");
+			local permanentInjuryContribution = permanentInjuryCount * permanentInjuryRate;
+
+			local temporaryInjuryCount = ::FiredCheaper.countInjuriesByType(_bro, ::Const.SkillType.TemporaryInjury);
+			local temporaryInjuryRate = ::FiredCheaper.getSettingValue("TemporaryInjuryFlatGold");
+			local temporaryInjuryContribution = temporaryInjuryCount * temporaryInjuryRate;
+
+			local equipmentDeductionEnabled = ::FiredCheaper.getSettingValue("EnableEquipmentDeduction");
+			local equipmentUsesSellPrice = ::FiredCheaper.getSettingValue("UseSellPriceForEquipmentDeduction");
+			local equipmentValuePercent = ::FiredCheaper.getSettingValue("EquipmentValuePercent");
+			local equipmentBaseTotal = 0;
+			local items = _bro.getItems();
+
+			if (equipmentDeductionEnabled)
+			{
+				if (::FiredCheaper.getSettingValue("CountHeadArmor")) equipmentBaseTotal = equipmentBaseTotal + ::FiredCheaper.getEquipmentSlotValue(items, ::Const.ItemSlot.Head);
+				if (::FiredCheaper.getSettingValue("CountBodyArmor")) equipmentBaseTotal = equipmentBaseTotal + ::FiredCheaper.getEquipmentSlotValue(items, ::Const.ItemSlot.Body);
+				if (::FiredCheaper.getSettingValue("CountMainhandWeapon")) equipmentBaseTotal = equipmentBaseTotal + ::FiredCheaper.getEquipmentSlotValue(items, ::Const.ItemSlot.Mainhand);
+				if (::FiredCheaper.getSettingValue("CountOffhand")) equipmentBaseTotal = equipmentBaseTotal + ::FiredCheaper.getEquipmentSlotValue(items, ::Const.ItemSlot.Offhand);
+				if (::FiredCheaper.getSettingValue("CountAccessory")) equipmentBaseTotal = equipmentBaseTotal + ::FiredCheaper.getEquipmentSlotValue(items, ::Const.ItemSlot.Accessory);
+				if (::FiredCheaper.getSettingValue("CountAmmo")) equipmentBaseTotal = equipmentBaseTotal + ::FiredCheaper.getEquipmentSlotValue(items, ::Const.ItemSlot.Ammo);
+			}
+
+			local equipmentDeduction = equipmentDeductionEnabled ? ::Math.ceil(equipmentBaseTotal * equipmentValuePercent / 100.0) : 0;
+			local totalBeforeFloor = hireCostContribution + daysContribution + levelContribution + permanentInjuryContribution + temporaryInjuryContribution - equipmentDeduction;
+			local minimumCompensationFloor = ::FiredCheaper.getSettingValue("MinimumCompensationFloor");
+			local finalCompensation = ::Math.max(minimumCompensationFloor, totalBeforeFloor);
+
 			return {
-				finalCompensation = value
+				hireCostBase = hireCostBase,
+				hireCostPercent = hireCostPercent,
+				hireCostContribution = hireCostContribution,
+				daysContributionEnabled = daysContributionEnabled,
+				daysWithCompany = daysWithCompany,
+				daysContributionRate = daysContributionRate,
+				daysContribution = daysContribution,
+				levelContributionEnabled = levelContributionEnabled,
+				level = level,
+				levelBracket = levelBracket,
+				levelContribution = levelContribution,
+				permanentInjuryCount = permanentInjuryCount,
+				permanentInjuryRate = permanentInjuryRate,
+				permanentInjuryContribution = permanentInjuryContribution,
+				temporaryInjuryCount = temporaryInjuryCount,
+				temporaryInjuryRate = temporaryInjuryRate,
+				temporaryInjuryContribution = temporaryInjuryContribution,
+				equipmentDeductionEnabled = equipmentDeductionEnabled,
+				equipmentUsesSellPrice = equipmentUsesSellPrice,
+				equipmentBaseTotal = equipmentBaseTotal,
+				equipmentValuePercent = equipmentValuePercent,
+				equipmentDeduction = equipmentDeduction,
+				totalBeforeFloor = totalBeforeFloor,
+				minimumCompensationFloor = minimumCompensationFloor,
+				finalCompensation = finalCompensation
 			};
+		}
+	}
+
+	if (!("getCompensationCost" in ::FiredCheaper))
+	{
+		::FiredCheaper.getCompensationCost <- function( _bro )
+		{
+			return ::FiredCheaper.getCompensationBreakdown(_bro).finalCompensation;
 		}
 	}
 
@@ -88,8 +208,15 @@ if (!("FiredCheaper" in getroottable()))
 	{
 		::FiredCheaper.getCompensationBreakdownLines <- function( _bro )
 		{
+			local b = ::FiredCheaper.getCompensationBreakdown(_bro);
 			return [
-				"Final compensation: " + ::FiredCheaper.getCompensationCost(_bro)
+				"Hire cost (" + b.hireCostPercent + "% of " + b.hireCostBase + "): +" + b.hireCostContribution,
+				b.daysContributionEnabled ? "Days with company (" + b.daysWithCompany + " x " + b.daysContributionRate + "): +" + b.daysContribution : "Days with company: disabled",
+				b.levelContributionEnabled ? "Level bonus (level " + b.level + ", bracket " + b.levelBracket + "): +" + b.levelContribution : "Level bonus: disabled",
+				"Permanent injuries (" + b.permanentInjuryCount + " x " + b.permanentInjuryRate + "): +" + b.permanentInjuryContribution,
+				"Temporary injuries (" + b.temporaryInjuryCount + " x " + b.temporaryInjuryRate + "): +" + b.temporaryInjuryContribution,
+				b.equipmentDeductionEnabled ? "Equipment deduction (" + (b.equipmentUsesSellPrice ? "sell price" : "base price") + ", " + b.equipmentValuePercent + "% of " + b.equipmentBaseTotal + "): -" + b.equipmentDeduction : "Equipment deduction: disabled",
+				"Final compensation: " + b.finalCompensation
 			];
 		}
 	}
@@ -111,14 +238,16 @@ if (!("FiredCheaper" in getroottable()))
 
 ::FiredCheaper.ensureCalculatorLoaded <- function()
 {
-	if (!("attachCompensationMethods" in ::FiredCheaper))
+	if (!("CalculatorSource" in ::FiredCheaper) || ::FiredCheaper.CalculatorSource != "full")
 	{
 		try
 		{
 			::include("scripts/mod_fired_cheaper/compensation_calculator");
+			::FiredCheaper.LastCalculatorIncludeError <- null;
 		}
 		catch (e)
 		{
+			::FiredCheaper.LastCalculatorIncludeError <- e;
 		}
 	}
 
@@ -147,6 +276,7 @@ if (!("FiredCheaper" in getroottable()))
 	::FiredCheaper.registerSettings();
 
 	::Hooks.registerJS("ui/mods/fired_cheaper.js");
+	::Hooks.registerCSS("ui/mods/fired_cheaper.css");
 
 	::FiredCheaper.applyUIHooks(::FiredCheaper.HookMod);
 	::FiredCheaper.applyDismissHooks(::FiredCheaper.HookMod);

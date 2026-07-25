@@ -1,0 +1,29 @@
+.character-screen .ui-control.popup-dialog.dismiss-popup
+{
+    width: 66.0rem;
+    height: 44.0rem;
+    top: 46%;
+
+    background-image: url("coui://gfx/ui/skin/popup_background_600x300.png");
+    background-size: 66.0rem 44.0rem;
+    background-repeat: no-repeat;
+}
+
+.character-screen .ui-control.popup-dialog .dismiss-character-container
+{
+    margin-top: -5.0rem;
+    margin-bottom: 0;
+    padding: 2.4rem 3.2rem;
+}
+
+.character-screen .ui-control.popup-dialog .dismiss-character-container .retirement-package
+{
+    margin-top: 0.6rem;
+    margin-bottom: -0.6rem;
+    line-height: 2.15rem;
+}
+
+.character-screen .ui-control.popup-dialog .dismiss-character-container .retirement-package .blub
+{
+    top: -0.4rem;
+}
