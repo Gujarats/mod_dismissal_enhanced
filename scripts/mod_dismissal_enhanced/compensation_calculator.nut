@@ -13,6 +13,11 @@ if (!("setCalculatorSlot" in ::DismissalEnhanced))
 	}
 }
 
+::DismissalEnhanced.debugLog <- function( _message )
+{
+    ::DismissalEnhanced.Mod.Debug.printLog("[DismissalEnhanced] " + _message);
+}
+
 ::DismissalEnhanced.setCalculatorSlot("CalculatorSource", "full");
 
 ::DismissalEnhanced.setCalculatorSlot("getDefaultSettingValue", function( _id )
@@ -83,13 +88,14 @@ if (!("setCalculatorSlot" in ::DismissalEnhanced))
 
 ::DismissalEnhanced.setCalculatorSlot("getHireCostContribution", function( _bro )
 {
-	local base = _bro.getHiringCost();
+	local broHiringCost = _bro.getHiringCost();
 	local percent = ::DismissalEnhanced.getSettingValue("HireCostPercent");
+	::DismissalEnhanced.debugLog("setCalculatorSlot called, getHireCostContribution: broHiringCost=" + broHiringCost + ", percent=" + percent + ", value=" + ::Math.ceil(broHiringCost * percent / 100.0));
 
 	return {
-		Base = base,
+		Base = broHiringCost,
 		Percent = percent,
-		Value = ::Math.ceil(base * percent / 100.0)
+		Value = ::Math.ceil(broHiringCost * percent / 100.0)
 	};
 });
 
