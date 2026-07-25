@@ -1,12 +1,12 @@
-# Fired Cheaper Comparison and Design Notes
+# Dismissal Enhanced Comparison and Design Notes
 
-**Project Root:** `mod_fired_cheaper`
+**Project Root:** `mod_dismissal_enhanced`
 
-**Purpose:** Compare available reference implementations and requested behavior for a new `mod_fired_cheaper` implementation, then lock the design assumptions for the implementation plan.
+**Purpose:** Compare available reference implementations and requested behavior for a new `mod_dismissal_enhanced` implementation, then lock the design assumptions for the implementation plan.
 
 ## Source Context
 
-The active `mod_fired_cheaper` repository is currently reset and contains docs/config only. Treat this as a new project. `mod_fire_cheaper_legacy` is reference material only; it is not the source of truth and does not need to be migrated line-by-line.
+The active `mod_dismissal_enhanced` repository is currently reset and contains docs/config only. Treat this as a new project. `mod_fire_cheaper_legacy` is reference material only; it is not the source of truth and does not need to be migrated line-by-line.
 
 ### Legacy Files
 
@@ -63,7 +63,7 @@ The legacy reference mod:
 The new implementation should expose a compatibility method on player brother entities:
 
 - player brother entities must receive `bro.getCompensationCost()`
-- `bro.getCompensationCost()` must delegate to the shared `::FiredCheaper.getCompensationCost(_bro)` formula
+- `bro.getCompensationCost()` must delegate to the shared `::DismissalEnhanced.getCompensationCost(_bro)` formula
 - UI data must still expose `target.compensationCost`
 - dismissal payment must use the same calculation source as the UI preview
 
@@ -201,7 +201,7 @@ Follow the pattern used in `mod_op_archers` and `mod_aura_routing`:
 - `::Hooks.register(...)`
 - `require("mod_msu >= 1.9.0")`
 - `queue(">mod_msu", function() { ... })`
-- create `::FiredCheaper.Mod <- ::MSU.Class.Mod(...)`
+- create `::DismissalEnhanced.Mod <- ::MSU.Class.Mod(...)`
 - register settings in a dedicated file
 
 ### File Layout Direction
@@ -218,7 +218,7 @@ This reduces the current single-file logic concentration in `mod_fairCompensatio
 
 ## Constraints
 
-- Use `mod_fired_cheaper` as the project root.
+- Use `mod_dismissal_enhanced` as the project root.
 - Do not modify `data_001`.
 - Do not modify unrelated community mods.
 - Keep defaults aligned with the approved gameplay design.
@@ -228,7 +228,7 @@ This reduces the current single-file logic concentration in `mod_fairCompensatio
 ## Open Risk Areas
 
 1. **Dismiss UI patch scope**
-   - The legacy reference ships a copied JS file. The selected approach is a narrower registered JS patch at `ui/mods/fired_cheaper.js`, avoiding a full copied vanilla character screen file.
+   - The legacy reference ships a copied JS file. The selected approach is a narrower registered JS patch at `ui/mods/dismissal_enhanced.js`, avoiding a full copied vanilla character screen file.
 
 2. **Entity method compatibility**
    - The implementation should attach `getCompensationCost()` to player brother entities to avoid breaking old UI paths, BBRoster-style flows, and any compatibility code that calls `bro.getCompensationCost()`.

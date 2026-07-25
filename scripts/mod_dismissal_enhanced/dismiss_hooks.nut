@@ -1,4 +1,4 @@
-::FiredCheaper.applyDismissHooks <- function( _mod )
+::DismissalEnhanced.applyDismissHooks <- function( _mod )
 {
 	_mod.hook("scripts/ui/screens/character/character_screen", function( q )
 	{
@@ -6,19 +6,19 @@
 		{
 			local bro = this.Tactical.getEntityByID(_data[0]);
 			local payCompensation = _data[1];
-			local allowCheckbox = ::FiredCheaper.getSettingValue("EnableCompensationPaymentCheckbox");
-			local enableExtras = ::FiredCheaper.getSettingValue("EnableExtraDismissalBehaviors");
+			local allowCheckbox = ::DismissalEnhanced.getSettingValue("EnableCompensationPaymentCheckbox");
+			local enableExtras = ::DismissalEnhanced.getSettingValue("EnableExtraDismissalBehaviors");
 
 			if (bro == null)
 			{
 				return;
 			}
 
-			local hasCalculator = ::FiredCheaper.ensureCalculatorLoaded();
+			local hasCalculator = ::DismissalEnhanced.ensureCalculatorLoaded();
 
 			if (hasCalculator)
 			{
-				::FiredCheaper.attachCompensationMethods(bro);
+				::DismissalEnhanced.attachCompensationMethods(bro);
 			}
 
 			if (!allowCheckbox)

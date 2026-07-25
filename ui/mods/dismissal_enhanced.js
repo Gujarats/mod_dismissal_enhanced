@@ -77,11 +77,11 @@
         else if (breakdownLines.length === 0)
         {
             breakdownLines = [
-                'Fired Cheaper data unavailable; showing vanilla compensation fallback: ' + compensationCost
+                'Dismissal Enhanced data unavailable; showing vanilla compensation fallback: ' + compensationCost
             ];
         }
 
-        breakdownLines.push('Fired Cheaper debug: ' + firedCheaperDebug);
+        breakdownLines.push('Dismissal Enhanced debug: ' + firedCheaperDebug);
 
         for (var i = 0; i < breakdownLines.length; ++i)
         {
