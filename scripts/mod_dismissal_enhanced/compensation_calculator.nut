@@ -1,21 +1,21 @@
-if (!("setCalculatorSlot" in ::FiredCheaper))
+if (!("setCalculatorSlot" in ::DismissalEnhanced))
 {
-	::FiredCheaper.setCalculatorSlot <- function( _key, _value )
+	::DismissalEnhanced.setCalculatorSlot <- function( _key, _value )
 	{
-		if (_key in ::FiredCheaper)
+		if (_key in ::DismissalEnhanced)
 		{
-			::FiredCheaper[_key] = _value;
+			::DismissalEnhanced[_key] = _value;
 		}
 		else
 		{
-			::FiredCheaper[_key] <- _value;
+			::DismissalEnhanced[_key] <- _value;
 		}
 	}
 }
 
-::FiredCheaper.setCalculatorSlot("CalculatorSource", "full");
+::DismissalEnhanced.setCalculatorSlot("CalculatorSource", "full");
 
-::FiredCheaper.setCalculatorSlot("getDefaultSettingValue", function( _id )
+::DismissalEnhanced.setCalculatorSlot("getDefaultSettingValue", function( _id )
 {
 	switch (_id)
 	{
@@ -45,13 +45,13 @@ if (!("setCalculatorSlot" in ::FiredCheaper))
 	return null;
 });
 
-::FiredCheaper.setCalculatorSlot("getSettingValue", function( _id )
+::DismissalEnhanced.setCalculatorSlot("getSettingValue", function( _id )
 {
-	if (("Mod" in ::FiredCheaper) && ::FiredCheaper.Mod != null)
+	if (("Mod" in ::DismissalEnhanced) && ::DismissalEnhanced.Mod != null)
 	{
 		try
 		{
-			local setting = ::FiredCheaper.Mod.ModSettings.getSetting(_id);
+			local setting = ::DismissalEnhanced.Mod.ModSettings.getSetting(_id);
 			if (setting != null)
 			{
 				return setting.getValue();
@@ -62,10 +62,10 @@ if (!("setCalculatorSlot" in ::FiredCheaper))
 		}
 	}
 
-	return ::FiredCheaper.getDefaultSettingValue(_id);
+	return ::DismissalEnhanced.getDefaultSettingValue(_id);
 });
 
-::FiredCheaper.setCalculatorSlot("countInjuriesByType", function( _bro, _skillType )
+::DismissalEnhanced.setCalculatorSlot("countInjuriesByType", function( _bro, _skillType )
 {
 	local injuries = _bro.getSkills().query(::Const.SkillType.Injury | ::Const.SkillType.SemiInjury);
 	local count = 0;
@@ -81,10 +81,10 @@ if (!("setCalculatorSlot" in ::FiredCheaper))
 	return count;
 });
 
-::FiredCheaper.setCalculatorSlot("getHireCostContribution", function( _bro )
+::DismissalEnhanced.setCalculatorSlot("getHireCostContribution", function( _bro )
 {
 	local base = _bro.getHiringCost();
-	local percent = ::FiredCheaper.getSettingValue("HireCostPercent");
+	local percent = ::DismissalEnhanced.getSettingValue("HireCostPercent");
 
 	return {
 		Base = base,
@@ -93,10 +93,10 @@ if (!("setCalculatorSlot" in ::FiredCheaper))
 	};
 });
 
-::FiredCheaper.setCalculatorSlot("getDaysContribution", function( _bro )
+::DismissalEnhanced.setCalculatorSlot("getDaysContribution", function( _bro )
 {
-	local enabled = ::FiredCheaper.getSettingValue("EnableDaysWithRosterCompensation");
-	local rate = ::FiredCheaper.getSettingValue("DaysWithRosterFlatGoldPerDay");
+	local enabled = ::DismissalEnhanced.getSettingValue("EnableDaysWithRosterCompensation");
+	local rate = ::DismissalEnhanced.getSettingValue("DaysWithRosterFlatGoldPerDay");
 	local days = _bro.getDaysWithCompany();
 
 	return {
@@ -107,9 +107,9 @@ if (!("setCalculatorSlot" in ::FiredCheaper))
 	};
 });
 
-::FiredCheaper.setCalculatorSlot("getLevelContribution", function( _bro )
+::DismissalEnhanced.setCalculatorSlot("getLevelContribution", function( _bro )
 {
-	local enabled = ::FiredCheaper.getSettingValue("EnableLevelBracketCompensation");
+	local enabled = ::DismissalEnhanced.getSettingValue("EnableLevelBracketCompensation");
 	local level = _bro.getLevel();
 	local value = 0;
 	local label = "disabled";
@@ -118,17 +118,17 @@ if (!("setCalculatorSlot" in ::FiredCheaper))
 	{
 		if (level <= 5)
 		{
-			value = ::FiredCheaper.getSettingValue("LevelBracketLowFlatGold");
+			value = ::DismissalEnhanced.getSettingValue("LevelBracketLowFlatGold");
 			label = "1-5";
 		}
 		else if (level <= 10)
 		{
-			value = ::FiredCheaper.getSettingValue("LevelBracketMidFlatGold");
+			value = ::DismissalEnhanced.getSettingValue("LevelBracketMidFlatGold");
 			label = "6-10";
 		}
 		else
 		{
-			value = ::FiredCheaper.getSettingValue("LevelBracketHighFlatGold");
+			value = ::DismissalEnhanced.getSettingValue("LevelBracketHighFlatGold");
 			label = "11+";
 		}
 	}
@@ -141,7 +141,7 @@ if (!("setCalculatorSlot" in ::FiredCheaper))
 	};
 });
 
-::FiredCheaper.setCalculatorSlot("getEquipmentSlotValue", function( _items, _slot )
+::DismissalEnhanced.setCalculatorSlot("getEquipmentSlotValue", function( _items, _slot )
 {
 	local item = _items.getItemAtSlot(_slot);
 	if (item == null || item == -1)
@@ -149,26 +149,26 @@ if (!("setCalculatorSlot" in ::FiredCheaper))
 		return 0;
 	}
 
-	local useSellPrice = ::FiredCheaper.getSettingValue("UseSellPriceForEquipmentDeduction");
+	local useSellPrice = ::DismissalEnhanced.getSettingValue("UseSellPriceForEquipmentDeduction");
 	return useSellPrice ? item.getSellPrice() : item.getValue();
 });
 
-::FiredCheaper.setCalculatorSlot("getEquipmentDeduction", function( _bro )
+::DismissalEnhanced.setCalculatorSlot("getEquipmentDeduction", function( _bro )
 {
-	local enabled = ::FiredCheaper.getSettingValue("EnableEquipmentDeduction");
-	local percent = ::FiredCheaper.getSettingValue("EquipmentValuePercent");
-	local useSellPrice = ::FiredCheaper.getSettingValue("UseSellPriceForEquipmentDeduction");
+	local enabled = ::DismissalEnhanced.getSettingValue("EnableEquipmentDeduction");
+	local percent = ::DismissalEnhanced.getSettingValue("EquipmentValuePercent");
+	local useSellPrice = ::DismissalEnhanced.getSettingValue("UseSellPriceForEquipmentDeduction");
 	local items = _bro.getItems();
 	local total = 0;
 
 	if (enabled)
 	{
-		if (::FiredCheaper.getSettingValue("CountHeadArmor")) total += ::FiredCheaper.getEquipmentSlotValue(items, ::Const.ItemSlot.Head);
-		if (::FiredCheaper.getSettingValue("CountBodyArmor")) total += ::FiredCheaper.getEquipmentSlotValue(items, ::Const.ItemSlot.Body);
-		if (::FiredCheaper.getSettingValue("CountMainhandWeapon")) total += ::FiredCheaper.getEquipmentSlotValue(items, ::Const.ItemSlot.Mainhand);
-		if (::FiredCheaper.getSettingValue("CountOffhand")) total += ::FiredCheaper.getEquipmentSlotValue(items, ::Const.ItemSlot.Offhand);
-		if (::FiredCheaper.getSettingValue("CountAccessory")) total += ::FiredCheaper.getEquipmentSlotValue(items, ::Const.ItemSlot.Accessory);
-		if (::FiredCheaper.getSettingValue("CountAmmo")) total += ::FiredCheaper.getEquipmentSlotValue(items, ::Const.ItemSlot.Ammo);
+		if (::DismissalEnhanced.getSettingValue("CountHeadArmor")) total += ::DismissalEnhanced.getEquipmentSlotValue(items, ::Const.ItemSlot.Head);
+		if (::DismissalEnhanced.getSettingValue("CountBodyArmor")) total += ::DismissalEnhanced.getEquipmentSlotValue(items, ::Const.ItemSlot.Body);
+		if (::DismissalEnhanced.getSettingValue("CountMainhandWeapon")) total += ::DismissalEnhanced.getEquipmentSlotValue(items, ::Const.ItemSlot.Mainhand);
+		if (::DismissalEnhanced.getSettingValue("CountOffhand")) total += ::DismissalEnhanced.getEquipmentSlotValue(items, ::Const.ItemSlot.Offhand);
+		if (::DismissalEnhanced.getSettingValue("CountAccessory")) total += ::DismissalEnhanced.getEquipmentSlotValue(items, ::Const.ItemSlot.Accessory);
+		if (::DismissalEnhanced.getSettingValue("CountAmmo")) total += ::DismissalEnhanced.getEquipmentSlotValue(items, ::Const.ItemSlot.Ammo);
 	}
 
 	return {
@@ -180,10 +180,10 @@ if (!("setCalculatorSlot" in ::FiredCheaper))
 	};
 });
 
-::FiredCheaper.setCalculatorSlot("getPermanentInjuryContribution", function( _bro )
+::DismissalEnhanced.setCalculatorSlot("getPermanentInjuryContribution", function( _bro )
 {
-	local count = ::FiredCheaper.countInjuriesByType(_bro, ::Const.SkillType.PermanentInjury);
-	local rate = ::FiredCheaper.getSettingValue("PermanentInjuryFlatGold");
+	local count = ::DismissalEnhanced.countInjuriesByType(_bro, ::Const.SkillType.PermanentInjury);
+	local rate = ::DismissalEnhanced.getSettingValue("PermanentInjuryFlatGold");
 
 	return {
 		Count = count,
@@ -192,10 +192,10 @@ if (!("setCalculatorSlot" in ::FiredCheaper))
 	};
 });
 
-::FiredCheaper.setCalculatorSlot("getTemporaryInjuryContribution", function( _bro )
+::DismissalEnhanced.setCalculatorSlot("getTemporaryInjuryContribution", function( _bro )
 {
-	local count = ::FiredCheaper.countInjuriesByType(_bro, ::Const.SkillType.TemporaryInjury);
-	local rate = ::FiredCheaper.getSettingValue("TemporaryInjuryFlatGold");
+	local count = ::DismissalEnhanced.countInjuriesByType(_bro, ::Const.SkillType.TemporaryInjury);
+	local rate = ::DismissalEnhanced.getSettingValue("TemporaryInjuryFlatGold");
 
 	return {
 		Count = count,
@@ -204,15 +204,15 @@ if (!("setCalculatorSlot" in ::FiredCheaper))
 	};
 });
 
-::FiredCheaper.setCalculatorSlot("getCompensationBreakdown", function( _bro )
+::DismissalEnhanced.setCalculatorSlot("getCompensationBreakdown", function( _bro )
 {
-	local hire = ::FiredCheaper.getHireCostContribution(_bro);
-	local days = ::FiredCheaper.getDaysContribution(_bro);
-	local level = ::FiredCheaper.getLevelContribution(_bro);
-	local permanent = ::FiredCheaper.getPermanentInjuryContribution(_bro);
-	local temporary = ::FiredCheaper.getTemporaryInjuryContribution(_bro);
-	local equipment = ::FiredCheaper.getEquipmentDeduction(_bro);
-	local floor = ::FiredCheaper.getSettingValue("MinimumCompensationFloor");
+	local hire = ::DismissalEnhanced.getHireCostContribution(_bro);
+	local days = ::DismissalEnhanced.getDaysContribution(_bro);
+	local level = ::DismissalEnhanced.getLevelContribution(_bro);
+	local permanent = ::DismissalEnhanced.getPermanentInjuryContribution(_bro);
+	local temporary = ::DismissalEnhanced.getTemporaryInjuryContribution(_bro);
+	local equipment = ::DismissalEnhanced.getEquipmentDeduction(_bro);
+	local floor = ::DismissalEnhanced.getSettingValue("MinimumCompensationFloor");
 	local totalBeforeFloor = hire.Value + days.Value + level.Value + permanent.Value + temporary.Value - equipment.Value;
 	local finalValue = ::Math.max(floor, totalBeforeFloor);
 
@@ -245,9 +245,9 @@ if (!("setCalculatorSlot" in ::FiredCheaper))
 	};
 });
 
-::FiredCheaper.setCalculatorSlot("getCompensationBreakdownLines", function( _bro )
+::DismissalEnhanced.setCalculatorSlot("getCompensationBreakdownLines", function( _bro )
 {
-	local b = ::FiredCheaper.getCompensationBreakdown(_bro);
+	local b = ::DismissalEnhanced.getCompensationBreakdown(_bro);
 	local lines = [];
 
 	lines.push("Hire cost (" + b.hireCostPercent + "% of " + b.hireCostBase + "): +" + b.hireCostContribution);
@@ -291,18 +291,18 @@ if (!("setCalculatorSlot" in ::FiredCheaper))
 	return lines;
 });
 
-::FiredCheaper.setCalculatorSlot("getCompensationCost", function( _bro )
+::DismissalEnhanced.setCalculatorSlot("getCompensationCost", function( _bro )
 {
-	return ::FiredCheaper.getCompensationBreakdown(_bro).finalCompensation;
+	return ::DismissalEnhanced.getCompensationBreakdown(_bro).finalCompensation;
 });
 
-::FiredCheaper.setCalculatorSlot("attachCompensationMethods", function( _bro )
+::DismissalEnhanced.setCalculatorSlot("attachCompensationMethods", function( _bro )
 {
 	if (_bro != null && !("getCompensationCost" in _bro))
 	{
 		_bro.getCompensationCost <- function()
 		{
-			return ::FiredCheaper.getCompensationCost(this);
+			return ::DismissalEnhanced.getCompensationCost(this);
 		}
 	}
 });

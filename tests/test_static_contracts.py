@@ -11,40 +11,40 @@ def read(rel_path: str) -> str:
 
 
 class StaticContractsTest(unittest.TestCase):
-    def test_mod_config_identifies_fired_cheaper(self):
+    def test_mod_config_identifies_dismissal_enhanced(self):
         config = json.loads(read("mod_config.json"))
 
-        self.assertEqual(config["mod_id"], "mod_fired_cheaper")
-        self.assertEqual(config["mod_name"], "Fired Cheaper")
+        self.assertEqual(config["mod_id"], "mod_dismissal_enhanced")
+        self.assertEqual(config["mod_name"], "Dismissal Enhanced")
         self.assertEqual(config["version"], "0.1.0")
 
     def test_modern_hooks_loader_and_msu_setup_are_defined(self):
-        loader = read("scripts/!mods_preload/mod_fired_cheaper_loader.nut")
+        loader = read("scripts/!mods_preload/mod_dismissal_enhanced_loader.nut")
 
-        self.assertIn("::Hooks.register(::FiredCheaper.ID", loader)
-        self.assertIn('::FiredCheaper.Version <- "0.1.0"', loader)
+        self.assertIn("::Hooks.register(::DismissalEnhanced.ID", loader)
+        self.assertIn('::DismissalEnhanced.Version <- "0.1.0"', loader)
         self.assertIn('require("mod_msu >= 1.9.0")', loader)
         self.assertIn('queue(">mod_msu"', loader)
         self.assertIn("::MSU.Class.Mod", loader)
-        self.assertIn("::FiredCheaper.registerSettings()", loader)
-        self.assertIn('::Hooks.registerJS("ui/mods/fired_cheaper.js")', loader)
-        self.assertIn('::Hooks.registerCSS("ui/mods/fired_cheaper.css")', loader)
-        self.assertIn("::FiredCheaper.ensureCalculatorLoaded", loader)
-        self.assertIn("::FiredCheaper.installFallbackCalculator", loader)
-        self.assertIn('::FiredCheaper.CalculatorSource <- "fallback"', loader)
-        self.assertIn('::FiredCheaper.CalculatorSource != "full"', loader)
-        self.assertIn("::FiredCheaper.LastCalculatorIncludeError <- e", loader)
-        self.assertIn("::FiredCheaper.countInjuriesByType <- function", loader)
-        self.assertIn("::FiredCheaper.getEquipmentSlotValue <- function", loader)
-        self.assertIn("::FiredCheaper.getCompensationBreakdown <- function", loader)
+        self.assertIn("::DismissalEnhanced.registerSettings()", loader)
+        self.assertIn('::Hooks.registerJS("ui/mods/dismissal_enhanced.js")', loader)
+        self.assertIn('::Hooks.registerCSS("ui/mods/dismissal_enhanced.css")', loader)
+        self.assertIn("::DismissalEnhanced.ensureCalculatorLoaded", loader)
+        self.assertIn("::DismissalEnhanced.installFallbackCalculator", loader)
+        self.assertIn('::DismissalEnhanced.CalculatorSource <- "fallback"', loader)
+        self.assertIn('::DismissalEnhanced.CalculatorSource != "full"', loader)
+        self.assertIn("::DismissalEnhanced.LastCalculatorIncludeError <- e", loader)
+        self.assertIn("::DismissalEnhanced.countInjuriesByType <- function", loader)
+        self.assertIn("::DismissalEnhanced.getEquipmentSlotValue <- function", loader)
+        self.assertIn("::DismissalEnhanced.getCompensationBreakdown <- function", loader)
         self.assertIn('"Hire cost ("', loader)
         self.assertIn('"Equipment deduction ("', loader)
-        self.assertIn("::FiredCheaper.getDefaultSettingValue", loader)
-        self.assertIn("::FiredCheaper.getSettingValue", loader)
-        self.assertIn('("getSettingValue" in ::FiredCheaper)', loader)
+        self.assertIn("::DismissalEnhanced.getDefaultSettingValue", loader)
+        self.assertIn("::DismissalEnhanced.getSettingValue", loader)
+        self.assertIn('("getSettingValue" in ::DismissalEnhanced)', loader)
 
     def test_settings_include_approved_adjustable_variables(self):
-        settings = read("scripts/!mods_preload/mod_fired_cheaper_settings.nut")
+        settings = read("scripts/!mods_preload/mod_dismissal_enhanced_settings.nut")
 
         for setting_id in [
             "EnableCompensationPaymentCheckbox",
@@ -75,14 +75,14 @@ class StaticContractsTest(unittest.TestCase):
         self.assertIn('"Level 11+ Bonus"', settings)
 
     def test_compensation_calculator_exposes_entity_compatibility_method(self):
-        calculator = read("scripts/mod_fired_cheaper/compensation_calculator.nut")
+        calculator = read("scripts/mod_dismissal_enhanced/compensation_calculator.nut")
 
-        self.assertIn("::FiredCheaper.setCalculatorSlot", calculator)
-        self.assertIn('::FiredCheaper.setCalculatorSlot("CalculatorSource", "full")', calculator)
-        self.assertIn('::FiredCheaper.setCalculatorSlot("attachCompensationMethods"', calculator)
+        self.assertIn("::DismissalEnhanced.setCalculatorSlot", calculator)
+        self.assertIn('::DismissalEnhanced.setCalculatorSlot("CalculatorSource", "full")', calculator)
+        self.assertIn('::DismissalEnhanced.setCalculatorSlot("attachCompensationMethods"', calculator)
         self.assertIn('"getCompensationCost" in _bro', calculator)
         self.assertIn("_bro.getCompensationCost <- function()", calculator)
-        self.assertIn("::FiredCheaper.getCompensationCost(this)", calculator)
+        self.assertIn("::DismissalEnhanced.getCompensationCost(this)", calculator)
         self.assertIn("UseSellPriceForEquipmentDeduction", calculator)
         self.assertIn("item.getSellPrice()", calculator)
         self.assertIn("item.getValue()", calculator)
@@ -90,7 +90,7 @@ class StaticContractsTest(unittest.TestCase):
         self.assertNotIn("this.Const", calculator)
 
     def test_ui_hook_injects_compensation_preview_payload(self):
-        ui_hook = read("scripts/mod_fired_cheaper/ui_hooks.nut")
+        ui_hook = read("scripts/mod_dismissal_enhanced/ui_hooks.nut")
 
         self.assertIn('hook("scripts/ui/global/data_helper"', ui_hook)
         self.assertIn("q.addCharacterToUIData = @(__original) function", ui_hook)
@@ -108,35 +108,35 @@ class StaticContractsTest(unittest.TestCase):
         self.assertNotIn('"getHiringCost" in _entity', ui_hook)
         self.assertNotIn('"getDaysWithCompany" in _entity', ui_hook)
         self.assertNotIn('"getItems" in _entity', ui_hook)
-        self.assertIn("::FiredCheaper.attachCompensationMethods(_entity)", ui_hook)
-        self.assertIn("if (!::FiredCheaper.ensureCalculatorLoaded())", ui_hook)
+        self.assertIn("::DismissalEnhanced.attachCompensationMethods(_entity)", ui_hook)
+        self.assertIn("if (!::DismissalEnhanced.ensureCalculatorLoaded())", ui_hook)
         self.assertIn("_target.compensationCost <- _entity.getCompensationCost()", ui_hook)
-        self.assertIn("_target.compensationBreakdown <- ::FiredCheaper.getCompensationBreakdown(_entity)", ui_hook)
-        self.assertIn("_target.compensationBreakdownLines <- ::FiredCheaper.getCompensationBreakdownLines(_entity)", ui_hook)
-        self.assertIn("_target.showCompensationCheckbox <- ::FiredCheaper.getSettingValue", ui_hook)
+        self.assertIn("_target.compensationBreakdown <- ::DismissalEnhanced.getCompensationBreakdown(_entity)", ui_hook)
+        self.assertIn("_target.compensationBreakdownLines <- ::DismissalEnhanced.getCompensationBreakdownLines(_entity)", ui_hook)
+        self.assertIn("_target.showCompensationCheckbox <- ::DismissalEnhanced.getSettingValue", ui_hook)
 
     def test_dismiss_hook_uses_same_entity_compensation_method_for_payment(self):
-        dismiss_hook = read("scripts/mod_fired_cheaper/dismiss_hooks.nut")
+        dismiss_hook = read("scripts/mod_dismissal_enhanced/dismiss_hooks.nut")
 
         self.assertIn('hook("scripts/ui/screens/character/character_screen"', dismiss_hook)
         self.assertIn("q.onDismissCharacter = @(__original) function", dismiss_hook)
-        self.assertIn("::FiredCheaper.attachCompensationMethods(bro)", dismiss_hook)
-        self.assertIn("local hasCalculator = ::FiredCheaper.ensureCalculatorLoaded()", dismiss_hook)
+        self.assertIn("::DismissalEnhanced.attachCompensationMethods(bro)", dismiss_hook)
+        self.assertIn("local hasCalculator = ::DismissalEnhanced.ensureCalculatorLoaded()", dismiss_hook)
         self.assertIn("hasCalculator ? -bro.getCompensationCost() : -10 * this.Math.max(1, bro.getDaysWithCompany())", dismiss_hook)
         self.assertIn("EnableExtraDismissalBehaviors", dismiss_hook)
 
     def test_dismiss_dialog_renders_visible_breakdown_lines(self):
-        ui = read("ui/mods/fired_cheaper.js")
-        css = read("ui/mods/fired_cheaper.css")
+        ui = read("ui/mods/dismissal_enhanced.js")
+        css = read("ui/mods/dismissal_enhanced.css")
 
         self.assertIn("selectedBrother['compensationBreakdownLines']", ui)
         self.assertIn("selectedBrother['showCompensationCheckbox']", ui)
         self.assertIn("selectedBrother['firedCheaperDebug']", ui)
         self.assertIn("Compensation breakdown", ui)
         self.assertIn("Final compensation: ", ui)
-        self.assertIn("Fired Cheaper data unavailable; showing vanilla compensation fallback", ui)
-        self.assertIn("Fired Cheaper debug: ", ui)
-        self.assertIn("breakdownLines.push('Fired Cheaper debug: ' + firedCheaperDebug)", ui)
+        self.assertIn("Dismissal Enhanced data unavailable; showing vanilla compensation fallback", ui)
+        self.assertIn("Dismissal Enhanced debug: ", ui)
+        self.assertIn("breakdownLines.push('Dismissal Enhanced debug: ' + firedCheaperDebug)", ui)
         self.assertIn("10 * Math.max(1, selectedBrother['daysWithCompany'] || 0)", ui)
         self.assertIn("bindTooltip", ui)
         self.assertIn(".character-screen .ui-control.popup-dialog.dismiss-popup", css)

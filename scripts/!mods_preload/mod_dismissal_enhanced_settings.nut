@@ -1,15 +1,15 @@
-if (!("FiredCheaper" in getroottable()))
+if (!("DismissalEnhanced" in getroottable()))
 {
-	::FiredCheaper <- {};
+	::DismissalEnhanced <- {};
 }
 
-::FiredCheaper.registerSettings <- function()
+::DismissalEnhanced.registerSettings <- function()
 {
-	local general = ::FiredCheaper.Mod.ModSettings.addPage("General");
-	local hire = ::FiredCheaper.Mod.ModSettings.addPage("Hire Compensation");
-	local equipment = ::FiredCheaper.Mod.ModSettings.addPage("Equipment Deduction");
-	local injury = ::FiredCheaper.Mod.ModSettings.addPage("Injury Compensation");
-	local behavior = ::FiredCheaper.Mod.ModSettings.addPage("Dismissal Behaviors");
+	local general = ::DismissalEnhanced.Mod.ModSettings.addPage("General");
+	local hire = ::DismissalEnhanced.Mod.ModSettings.addPage("Hire Compensation");
+	local equipment = ::DismissalEnhanced.Mod.ModSettings.addPage("Equipment Deduction");
+	local injury = ::DismissalEnhanced.Mod.ModSettings.addPage("Injury Compensation");
+	local behavior = ::DismissalEnhanced.Mod.ModSettings.addPage("Dismissal Behaviors");
 
 	general.addBooleanSetting("EnableCompensationPaymentCheckbox", true, "Show Compensation Checkbox", "When enabled, the dismiss dialog lets you choose whether to pay compensation.");
 	general.addRangeSetting("MinimumCompensationFloor", 0, 0, 5000, 10, "Minimum Compensation Floor", "The final compensation can never go below this amount.");
