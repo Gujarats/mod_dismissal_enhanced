@@ -2,18 +2,22 @@
 
 **Project Root:** `mod_fired_cheaper`
 
-**Purpose:** Compare the current `mod_fired_cheaper` implementation against the requested redesign, then lock the design assumptions for the implementation plan.
+**Purpose:** Compare available reference implementations and requested behavior for a new `mod_fired_cheaper` implementation, then lock the design assumptions for the implementation plan.
 
-## Current Mod Behavior
+## Source Context
 
-### Files
+The active `mod_fired_cheaper` repository is currently reset and contains docs/config only. Treat this as a new project. `mod_fire_cheaper_legacy` is reference material only; it is not the source of truth and does not need to be migrated line-by-line.
 
-- [`scripts/!mods_preload/mod_fairCompensation.nut`](/E:/Battle%20Brother%20extract%20code/mod_fired_cheaper/scripts/!mods_preload/mod_fairCompensation.nut)
-- [`ui/screens/character/modules/character_screen_left_panel/character_screen_left_panel_header_module.js`](/E:/Battle%20Brother%20extract%20code/mod_fired_cheaper/ui/screens/character/modules/character_screen_left_panel/character_screen_left_panel_header_module.js)
+### Legacy Files
 
-### Current Architecture
+- [`mod_fire_cheaper_legacy/scripts/!mods_preload/mod_fairCompensation.nut`](/E:/Battle%20Brother%20extract%20code/mod_fire_cheaper_legacy/scripts/!mods_preload/mod_fairCompensation.nut)
+- [`mod_fire_cheaper_legacy/ui/screens/character/modules/character_screen_left_panel/character_screen_left_panel_header_module.js`](/E:/Battle%20Brother%20extract%20code/mod_fire_cheaper_legacy/ui/screens/character/modules/character_screen_left_panel/character_screen_left_panel_header_module.js)
 
-The current mod is a legacy Hooks-era implementation:
+## Legacy Reference Behavior
+
+### Legacy Reference Architecture
+
+The legacy reference mod is a Hooks-era implementation:
 
 - registers with `::mods_registerMod(...)`
 - uses `::mods_queue(...)`
@@ -29,9 +33,9 @@ It does not use:
 - MSU Mod Settings pages
 - isolated helper functions for compensation sub-components
 
-### Current Compensation Formula
+### Legacy Reference Compensation Formula
 
-The current formula is custom and based on:
+The legacy reference formula is custom and based on:
 
 - effective wage and base wage average
 - days with company scaled into a pension
@@ -43,24 +47,36 @@ The current formula is custom and based on:
 
 This formula is not based on the requested "hire cost + configurable deductions/additions" model.
 
-### Current Dismissal/UI Behavior
+### Legacy Reference Dismissal/UI Behavior
 
-The current mod:
+The legacy reference mod:
 
 - adds a compensation amount to selected brother UI data
+- attaches `getCompensationCost()` directly to the brother entity during UI data injection
 - changes dismiss dialog text to mention compensation or reparations
 - lets the user keep a checkbox to pay or not pay compensation
-- applies custom dismissal money removal through `onDismissCharacter`
-- preserves existing game-side dismissal news, mood, slave, statistics, stash transfer, and roster removal behavior inside the overridden function
+- applies custom dismissal money removal through `onDismissCharacter` by calling `bro.getCompensationCost()`
+- copies existing game-side dismissal news, mood, slave, statistics, stash transfer, and roster removal behavior inside the overridden function
+
+### Compatibility Contract
+
+The new implementation should expose a compatibility method on player brother entities:
+
+- player brother entities must receive `bro.getCompensationCost()`
+- `bro.getCompensationCost()` must delegate to the shared `::FiredCheaper.getCompensationCost(_bro)` formula
+- UI data must still expose `target.compensationCost`
+- dismissal payment must use the same calculation source as the UI preview
+
+This is not because the project is a legacy migration. It is a pragmatic compatibility decision because other UI flows and compatibility mods can observe the brother entity method. A namespace-only implementation is more fragile.
 
 ## Requested Redesign
 
 ## Core Goals
 
-1. Replace legacy mod bootstrap with MSU + modern Hooks.
+1. Build the new mod with MSU + modern Hooks.
 2. Expose important compensation variables in the option menu.
 3. Replace the current compensation formula with the requested configurable formula.
-4. Keep original/current dismissal side behaviors by default, but make the extra behavior group adjustable through settings.
+4. Keep vanilla-safe dismissal side behaviors by default, but make the extra behavior group adjustable through settings.
 5. Show the final compensation formula result and breakdown directly in the dismiss dialog during firing.
 
 ## Requested Formula Model
@@ -124,7 +140,7 @@ Recommended settings:
 - `EnableDaysWithRosterCompensation`
 - `DaysWithRosterFlatGoldPerDay`
 - `EnableEquipmentDeduction`
-- `EquipmentPriceMode`
+- `UseSellPriceForEquipmentDeduction`
 - `EquipmentValuePercent`
 - `CountHeadArmor`
 - `CountBodyArmor`
@@ -152,7 +168,7 @@ Recommended setting:
 
 When `true`:
 
-- preserve the current non-formula extras already implemented in the mod, including:
+- enable non-formula dismissal extras inspired by vanilla and the legacy reference, including:
   - slave mood side effects tied to compensated dismissal
   - dismissal news generation
   - roster mood penalties from dismissing brothers
@@ -169,7 +185,7 @@ When `false`:
 
 The redesign should not try to rewrite the full vanilla dismiss pipeline. The safe scope is:
 
-- modernize the mod bootstrap and hooks
+- implement the mod bootstrap and hooks using Modern Hooks
 - isolate compensation calculation into helpers
 - inject UI-facing preview data
 - gate extra modded side behaviors behind one setting
@@ -205,33 +221,37 @@ This reduces the current single-file logic concentration in `mod_fairCompensatio
 - Use `mod_fired_cheaper` as the project root.
 - Do not modify `data_001`.
 - Do not modify unrelated community mods.
-- Preserve current behavior by default where requested.
+- Keep defaults aligned with the approved gameplay design.
 - Prefer MSU settings over hard-coded constants.
 - Avoid copying more vanilla UI code than necessary when a hook can patch behavior more narrowly.
 
 ## Open Risk Areas
 
 1. **Dismiss UI patch scope**
-   - The current mod ships a copied JS file. If a narrower JS patch/hook is possible, it is preferable. If not, the replacement file must be kept minimal and documented.
+   - The legacy reference ships a copied JS file. The selected approach is a narrower registered JS patch at `ui/mods/fired_cheaper.js`, avoiding a full copied vanilla character screen file.
 
-2. **Hire cost source**
+2. **Entity method compatibility**
+   - The implementation should attach `getCompensationCost()` to player brother entities to avoid breaking old UI paths, BBRoster-style flows, and any compatibility code that calls `bro.getCompensationCost()`.
+
+3. **Hire cost source**
    - The requested formula depends on "the hired cost as the first time". The implementation must identify a reliable source for the original hiring price on a rostered brother. If vanilla does not persist this cleanly, the mod may need a fallback or tracked value.
 
-3. **Equipment price source**
+4. **Equipment price source**
    - Sell price is now the default deduction model. If optional base-price mode is retained, the implementation must normalize both paths cleanly across item classes.
 
-4. **Extra behavior grouping**
+5. **Extra behavior grouping**
    - Some currently embedded behaviors are structural and should never be disabled, such as stash transfer and roster removal. The toggle must only cover optional side effects.
 
 ## Final Design Decision for Planning
 
 The implementation plan should assume:
 
-- MSU migration is required.
-- The requested compensation formula replaces the current one.
+- MSU + Modern Hooks are required for the new implementation.
+- The requested compensation formula is the source of truth.
+- The entity method `bro.getCompensationCost()` is required as a compatibility API and must delegate to the shared namespace calculation.
 - Formula variables are individually configurable and grouped by context in settings pages.
 - Brother level is an additional compensation variable using flat level brackets.
 - Equipment deduction defaults to sell price, not base price.
 - Additional equipment slots are individually configurable and default to `false`.
 - One master toggle controls grouped extra dismissal behaviors.
-- Default settings preserve current/original behavior as closely as practical.
+- Default settings follow the approved gameplay design, not the legacy formula.
