@@ -2,3 +2,5 @@ dist
 .brush_build_manifest.json
 .vscode
 tests
+*.json
+docs/
