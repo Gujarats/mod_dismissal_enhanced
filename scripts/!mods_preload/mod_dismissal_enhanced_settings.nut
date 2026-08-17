@@ -11,6 +11,12 @@ if (!("DismissalEnhanced" in getroottable()))
 	local injury = ::DismissalEnhanced.Mod.ModSettings.addPage("Injury Compensation");
 	local behavior = ::DismissalEnhanced.Mod.ModSettings.addPage("Dismissal Behaviors");
 
+	local debugLogging = general.addBooleanSetting("DebugLogging", false, "Debug Logging", "Write Dismissal Enhanced debug lines to log.html.");
+	debugLogging.addCallback(function( _data = null )
+	{
+		::DismissalEnhanced.configureDebugLogging();
+	});
+
 	general.addBooleanSetting("EnableCompensationPaymentCheckbox", true, "Show Compensation Checkbox", "When enabled, the dismiss dialog lets you choose whether to pay compensation.");
 	general.addRangeSetting("MinimumCompensationFloor", 0, 0, 5000, 10, "Minimum Compensation Floor", "The final compensation can never go below this amount.");
 

@@ -5,7 +5,19 @@ if (!("DismissalEnhanced" in getroottable()))
 
 ::DismissalEnhanced.ID <- "mod_dismissal_enhanced";
 ::DismissalEnhanced.Name <- "Dismissal Enhanced";
-::DismissalEnhanced.Version <- "0.1.0";
+::DismissalEnhanced.Version <- "0.1.1";
+
+::DismissalEnhanced.configureDebugLogging <- function()
+{
+	if ("GuzBluezDebugLogController" in getroottable()
+		&& "registerTarget" in ::GuzBluezDebugLogController)
+	{
+		::GuzBluezDebugLogController.registerTarget(::DismissalEnhanced.ID, ::DismissalEnhanced.Mod);
+		return;
+	}
+
+	::DismissalEnhanced.Mod.Debug.setFlag("default", ::DismissalEnhanced.Mod.ModSettings.getSetting("DebugLogging").getValue());
+};
 
 ::DismissalEnhanced.installFallbackCalculator <- function()
 {
@@ -274,6 +286,7 @@ if (!("DismissalEnhanced" in getroottable()))
 {
 	::DismissalEnhanced.Mod <- ::MSU.Class.Mod(::DismissalEnhanced.ID, ::DismissalEnhanced.Version, ::DismissalEnhanced.Name);
 	::DismissalEnhanced.registerSettings();
+	::DismissalEnhanced.configureDebugLogging();
 
 	::Hooks.registerJS("ui/mods/dismissal_enhanced.js");
 	::Hooks.registerCSS("ui/mods/dismissal_enhanced.css");

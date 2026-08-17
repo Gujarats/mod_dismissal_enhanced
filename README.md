@@ -36,3 +36,6 @@ These options directly affect the final dismissal compensation price.
 - `Permanent Injury Gold`: Flat gold added for each permanent injury.
 - `Temporary Injury Gold`: Flat gold added for each temporary injury.
 
+# Debug Logging
+
+`Debug Logging` on the General page controls Dismissal Enhanced output when Global Developer Test is absent. Global Developer Test overrides this value while installed.
